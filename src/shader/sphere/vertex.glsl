@@ -1,5 +1,7 @@
 uniform float uProgress;
 uniform float uTime;
+uniform float uFreq;
+
 
 varying vec2 vUv;
 varying vec3 vColor;
@@ -15,7 +17,7 @@ vec3 hsv2rgb(vec3 c) {
 
 void main(){
 
-    float noise = snoise(position*.095 + uTime/20.);
+    float noise = snoise(position*uFreq + uTime/20.);
 
     //distorting sphere
     vec3 newPosition = position*0.75 * (noise + 0.5);

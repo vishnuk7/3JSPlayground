@@ -1,4 +1,5 @@
 uniform vec2 uResolution;
+
 uniform float uTime;
 uniform sampler2D uTxt1;
 

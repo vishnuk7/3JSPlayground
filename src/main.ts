@@ -176,9 +176,12 @@ class Sketch {
 		this.scene.add(this.mesh.plane);
 
 		/* gui */
-		this.pane.addInput(planeMaterial, 'wireframe');
-		this.pane.addInput(plane, 'visible', {
-			label: 'background',
+		const background = this.pane.addFolder({
+			title: 'Background',
+		});
+		background.addInput(planeMaterial, 'wireframe');
+		background.addInput(plane, 'visible', {
+			label: 'un-hide',
 		});
 
 		/* sphere */
@@ -186,6 +189,8 @@ class Sketch {
 		const sphereMaterial = new THREE.ShaderMaterial({
 			uniforms: {
 				uTime: { value: 0 },
+				uFreq: { value: 0.095 },
+				uSize: { value: 2000.0 },
 				uTxt1: { value: this.textures[0] },
 				uResolution: { value: new THREE.Vector2(this.sizes.width, this.sizes.height) },
 			},
@@ -199,23 +204,55 @@ class Sketch {
 		this.mesh.sphere = sphere;
 		this.scene.add(this.mesh.sphere);
 
+		/* gui */
+		const sphereGUI = this.pane.addFolder({
+			title: 'Sphere',
+		});
+
+		sphereGUI.addInput(this.mesh.sphere, 'visible', {
+			label: 'un-hide',
+		});
+
+		sphereGUI.addInput(this.materials.sphereMaterial.uniforms.uFreq, 'value', {
+			label: 'frequency',
+			min: 0.01,
+			max: 0.9,
+			step: 0.0001,
+		});
+
 		this.addPoints();
 	}
 
 	addPoints() {
 		this.POINTS_PARAMS = {
-			count: 1000,
-			radius: 10,
+			count: 6000,
+			radius: 2,
 		};
 
 		this.generatePoints();
 
 		/* gui */
 		const satellite = this.pane.addFolder({
-			title: 'satellite',
+			title: 'Satellite',
 		});
 
-		const count = satellite
+		if (this.mesh.points)
+			satellite.addInput(this.mesh.points, 'visible', {
+				label: 'un-hide',
+			});
+
+		if (this.materials.sphereMaterial)
+			satellite
+				.addInput(this.materials.sphereMaterial.uniforms.uSize, 'value', {
+					min: 50,
+					max: 1500,
+					step: 50,
+				})
+				.on('change', (ev) => {
+					if (ev.last) this.generatePoints();
+				});
+
+		satellite
 			.addInput(this.POINTS_PARAMS, 'count', {
 				min: 500,
 				max: 2000,
@@ -278,6 +315,13 @@ class Sketch {
 			this.geometries.particleGeometry = particleGeometry;
 
 			const particleMaterial = new THREE.ShaderMaterial({
+				depthWrite: false,
+				blending: THREE.AdditiveBlending,
+				vertexColors: true,
+				uniforms: {
+					uTime: { value: 0 },
+				},
+				transparent: true,
 				vertexShader: pointsVertexShader,
 				fragmentShader: pointsFragmentShader,
 			});
@@ -297,6 +341,8 @@ class Sketch {
 		if (this.materials.planeMaterial) this.materials.planeMaterial.uniforms.uTime.value = this.time;
 
 		if (this.materials.sphereMaterial) this.materials.sphereMaterial.uniforms.uTime.value = this.time;
+
+		if (this.materials.particleMaterial) this.materials.particleMaterial.uniforms.uTime.value = this.time;
 
 		this.controller.update();
 		window.requestAnimationFrame(() => this.tick());
