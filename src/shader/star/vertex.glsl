@@ -2,14 +2,27 @@ uniform float uProgress;
 uniform float uTime;
 uniform float uSize;
 
+attribute float aScale;
+
 varying vec3 vColor;
 varying vec2 vUv;
 
 
 
 void main(){
+
+    vec3 p = position;
+
+    // p.y +=   sin(p.y * uTime);
+
+
     vec4 mvPosition = modelViewMatrix * vec4(p, 1.0);
-    gl_PointSize = 200. * (1.0 / -mvPosition.z);
+
+    vec4 viewPosition = viewMatrix * mvPosition;
+
+    gl_PointSize = 4000. * aScale * (abs(sin(uTime*0.5)) + 0.5);
+    gl_PointSize *= (1.0 / -viewPosition.z);
+
     gl_Position = projectionMatrix * mvPosition;
 
     //varying

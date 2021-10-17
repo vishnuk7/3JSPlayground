@@ -13,6 +13,9 @@ import sphereFragmentShader from './shader/sphere/fragment.glsl';
 import pointsVertexShader from './shader/points/vertex.glsl';
 import pointsFragmentShader from './shader/points/fragment.glsl';
 
+import starVertexShader from './shader/star/vertex.glsl';
+import starFragmentShader from './shader/star/fragment.glsl';
+
 /* css */
 import './style.css';
 
@@ -24,18 +27,21 @@ interface IGeometries {
 	planeGeometry?: THREE.PlaneGeometry;
 	sphereGeometry?: THREE.SphereGeometry;
 	particleGeometry?: THREE.BufferGeometry;
+	starGeometry?: THREE.BufferGeometry;
 }
 
 interface IMaterials {
 	planeMaterial?: THREE.ShaderMaterial;
 	sphereMaterial?: THREE.ShaderMaterial;
 	particleMaterial?: THREE.ShaderMaterial;
+	starMaterial?: THREE.ShaderMaterial;
 }
 
 interface IMesh {
 	plane?: THREE.Mesh;
 	sphere?: THREE.Mesh;
 	points?: THREE.Points;
+	star?: THREE.Points;
 }
 
 interface IPOINTS_PARAMS {
@@ -157,7 +163,7 @@ class Sketch {
 
 	addObjects() {
 		/* cube */
-		const planeGeometry = new THREE.PlaneGeometry(this.sizes.width, this.sizes.height, 2, 2);
+		const planeGeometry = new THREE.PlaneGeometry(this.sizes.width, this.sizes.height, 20, 20);
 		const planeMaterial = new THREE.ShaderMaterial({
 			uniforms: {
 				uTime: { value: 0 },
@@ -221,6 +227,7 @@ class Sketch {
 		});
 
 		this.addPoints();
+		this.addStar();
 	}
 
 	addPoints() {
@@ -328,10 +335,64 @@ class Sketch {
 
 			this.materials.particleMaterial = particleMaterial;
 
-			const points = new THREE.Points(particleGeometry, particleMaterial);
+			const points = new THREE.Points(this.geometries.particleGeometry, this.materials.particleMaterial);
 			this.mesh.points = points;
 			this.scene.add(this.mesh.points);
 		}
+	}
+
+	addStar() {
+		let N = 150;
+		let radius = this.geometries.sphereGeometry?.parameters.radius * 2.5;
+		let position = new Float32Array(N * 3);
+		const scales = new Float32Array(N * 1);
+		let temp = this.sizes.width / 2 - radius;
+		const starGeometry = new THREE.BufferGeometry();
+
+		let inc = Math.PI * (3 - Math.sqrt(5));
+		let offset = 2 / N;
+		let y = 0;
+		let x = 0;
+		let z = 0;
+		let r = 0;
+		let phi = 0;
+
+		for (let i = 0; i < N; i++) {
+			y = i * offset - 1 + offset / 2;
+			r = Math.sqrt(1 - y * y);
+
+			phi = i * inc;
+
+			x = Math.cos(phi) * r;
+			z = Math.sin(phi) * r;
+
+			position[3 * i] = radius * x;
+			position[3 * i + 1] = radius * y;
+			position[3 * i + 2] = radius * z;
+
+			scales[i] = Math.random();
+		}
+		starGeometry.setAttribute('position', new THREE.BufferAttribute(position, 3));
+		starGeometry.setAttribute('aScale', new THREE.BufferAttribute(scales, 1));
+
+		this.geometries.starGeometry = starGeometry;
+		const starMaterial = new THREE.ShaderMaterial({
+			depthWrite: false,
+			blending: THREE.AdditiveBlending,
+			vertexColors: true,
+			uniforms: {
+				uTime: { value: 0 },
+			},
+			transparent: true,
+			vertexShader: starVertexShader,
+			fragmentShader: starFragmentShader,
+		});
+
+		this.materials.starMaterial = starMaterial;
+
+		const stars = new THREE.Points(this.geometries.starGeometry, this.materials.starMaterial);
+		this.mesh.star = stars;
+		this.scene.add(this.mesh.star);
 	}
 
 	tick() {
@@ -343,6 +404,27 @@ class Sketch {
 		if (this.materials.sphereMaterial) this.materials.sphereMaterial.uniforms.uTime.value = this.time;
 
 		if (this.materials.particleMaterial) this.materials.particleMaterial.uniforms.uTime.value = this.time;
+
+		if (this.materials.starMaterial) this.materials.starMaterial.uniforms.uTime.value = this.time;
+
+		//rotation
+		if (this.mesh.points) {
+			this.mesh.points.rotation.z += 0.0001;
+			this.mesh.points.rotation.z += 0.0001;
+		}
+
+		if (this.mesh.star) {
+			this.mesh.star.position.y += Math.sin(this.time) * 0.2;
+			this.mesh.star.position.y += Math.cos(this.time) * 0.2;
+
+			this.mesh.star.position.x += Math.sin(this.time) * 0.2;
+			this.mesh.star.position.x += Math.cos(this.time) * 0.2;
+
+			// this.mesh.star.position.z += Math.cos(this.time);
+
+			// this.mesh.star.rotation.z += Math.cos(this.time) * 0.001;
+			// this.mesh.star.rotation.z += Math.sin(this.time) * 0.001;
+		}
 
 		this.controller.update();
 		window.requestAnimationFrame(() => this.tick());

@@ -4,9 +4,14 @@ uniform float uTime;
 uniform sampler2D uTxt1;
 
 varying vec2 vUv;
+varying float vWave;
 
 
-#include ./smoke.glsl;
+// #include ./smoke.glsl;
+#include ../noise/simplex/4d.glsl;
+#include ./wave.glsl;
+
+
 
 
 float rayStrength(vec2 raySource, vec2 rayRefDirection, vec2 coord, float seedA, float seedB, float speed)
@@ -51,18 +56,41 @@ void main(){
 
     vec4 fragColor = rays1 * 0.5 + rays2 * 0.4;
 
+	float wave = vWave * 0.2;
+	vec4 displace = texture2D(uTxt1, vUv + wave);
 
-    vec2 uv1 = gl_FragCoord.xy / uResolution.xy;
-    float n = nestedNoise(uv1 * 6.);
+	 vec2 displaceUV = vec2(
+        vUv.x,
+        vUv.y
+    );
 
-	vec4 smoke = vec4(mix(vec3(.0, .0, .0), vec3(1., 1., 1.), n), 1.);
+	//  displaceUV.y = mix(vUv.y, displace.b - 0.005 , abs(sin(uTime) -.5));
+	//  displaceUV.x = mix(vUv.x, displace.b - 0.005 , abs(sin(uTime) -.5));
+
+	float r = texture2D(uTxt1, vUv).r;
+	float g = texture2D(uTxt1, vUv + wave).g;
+	float b = texture2D(uTxt1, vUv + wave).b;
+  	// Put them back together
+  	vec3 txt = vec3(r, g, b);
+
+	// vec4 txt = texture2D(uTxt1, vUv + wave);
+
+    // vec2 uv1 = gl_FragCoord.xy / uResolution.xy;
+    // float n = nestedNoise(uv1 * 6.);
+
+	// vec4 smoke = vec4(mix(vec3(.0, .0, .0), vec3(1., 1., 1.), n), 1.);
+	// vec4 wave = wave(gl_FragColor, gl_FragCoord);
+	// float n1 = snoise(vec3(uv1, 1.0));
+
+	// uv1.x  *= sin(n1 * uTime * 2.) * 0.5;
+	// uv1.y  *= sin(n1 * uTime * 2.) * 0.5;
 
     // Attenuate brightness towards the bottom, simulating light-loss due to depth.
 	// Give the whole thing a blue-green tinge as well.
 	float brightness = 1.0 - (coord.y / uResolution.y);
-	fragColor.x *= smoke.z * 0.2 + (brightness * 0.1);
-	fragColor.y *= 0.1 + (brightness * 0.1);
-	fragColor.z *= smoke.x * 0.5 + (brightness * 0.2);;
+	fragColor.x *= 0.24 + (brightness * 0.1);
+	fragColor.y *= 0.07 + (brightness * 0.1);
+	fragColor.z *= txt.z * 0.25 + 0.38 + (brightness * 0.2);;
 
 
 
