@@ -56,6 +56,10 @@ interface IPOINTS_PARAMS {
 	radius: number;
 }
 
+const parameters = {
+	format: THREE.RGBFormat,
+};
+
 class Sketch {
 	scene: THREE.Scene;
 	sizes: { width: number; height: number };
@@ -83,6 +87,7 @@ class Sketch {
 	displacementPass: ShaderPass;
 	waterTexture: WaterTexture;
 	waterEffect: WaterEffect;
+	renderTarget: THREE.WebGLMultipleRenderTargets;
 
 	constructor(options: IOption) {
 		this.scene = new THREE.Scene();
@@ -102,8 +107,10 @@ class Sketch {
 		/* renderer */
 		this.renderer = new THREE.WebGLRenderer({
 			canvas: this.canvas,
-			// antialias: true,
+			antialias: true,
 		});
+		this.renderTarget = new THREE.WebGLMultipleRenderTargets(this.sizes.width, this.sizes.height, THREE.RGBFormat);
+
 		this.renderer.setSize(this.sizes.width, this.sizes.height);
 		this.isController = true;
 		this.controller = new OrbitControls(this.camera, this.canvas);
@@ -167,11 +174,10 @@ class Sketch {
 	addEffect() {
 		/* post processing */
 		this.effectComposer = new EffectComposer(this.renderer);
-		// this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-		// this.effectComposer.setSize(this.sizes.width, this.sizes.height);
+		this.effectComposer.multisampling = 4;
+		console.log(this.effectComposer.multisampling, THREE.RGBFormat);
 
 		this.renderPass = new RenderPass(this.scene, this.camera);
-		// this.renderPass.setSize(this.sizes.width, this.sizes.height);
 		this.waterEffect = new WaterEffect(this.waterTexture.texture);
 
 		const waterpass = new EffectPass(this.camera, this.waterEffect);
@@ -181,9 +187,6 @@ class Sketch {
 
 		this.effectComposer.addPass(this.renderPass);
 		this.effectComposer.addPass(waterpass);
-		// this.effectComposer.addPass(SMAAEffect);
-
-		// this.effectComposer.addPass(this.displacementPass);
 	}
 
 	mouseMovement() {
