@@ -1,7 +1,10 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { EffectComposer, RenderPass, EffectPass, SMAAEffect } from 'postprocessing';
 
 import { Pane } from 'tweakpane';
+
+import { WaterTexture } from './WaterTexture';
 
 /* shaders */
 import raysVertexShader from './shader/rays/vertex.glsl';
@@ -16,8 +19,12 @@ import pointsFragmentShader from './shader/points/fragment.glsl';
 import starVertexShader from './shader/star/vertex.glsl';
 import starFragmentShader from './shader/star/fragment.glsl';
 
+import mouseVertexShader from './shader/mouse/vertex.glsl';
+import mouseFragmentShader from './shader/mouse/fragment.glsl';
+
 /* css */
 import './style.css';
+import { WaterEffect } from './WaterEffect ';
 
 interface IOption {
 	canvas: HTMLCanvasElement;
@@ -69,6 +76,13 @@ class Sketch {
 	geometries: IGeometries;
 	mesh: IMesh;
 	POINTS_PARAMS: IPOINTS_PARAMS;
+	effectComposer: EffectComposer;
+	renderPass: RenderPass;
+	raycaster: THREE.Raycaster;
+	mouse: THREE.Vector3;
+	displacementPass: ShaderPass;
+	waterTexture: WaterTexture;
+	waterEffect: WaterEffect;
 
 	constructor(options: IOption) {
 		this.scene = new THREE.Scene();
@@ -88,7 +102,7 @@ class Sketch {
 		/* renderer */
 		this.renderer = new THREE.WebGLRenderer({
 			canvas: this.canvas,
-			antialias: true,
+			// antialias: true,
 		});
 		this.renderer.setSize(this.sizes.width, this.sizes.height);
 		this.isController = true;
@@ -112,12 +126,22 @@ class Sketch {
 		/* mesh */
 		this.mesh = {};
 
+		/* mouse */
+		this.raycaster = new THREE.Raycaster();
+		this.mouse = new THREE.Vector3();
+
 		/* clock */
 		this.clock = new THREE.Clock();
 		this.time = 0;
 
+		/* water texture */
+		this.waterTexture = new WaterTexture({ debug: false });
+
 		/* change the size of canvas when window resized  */
 		this.resize();
+
+		/* add effects */
+		this.addEffect();
 
 		/* tick function */
 		this.tick();
@@ -135,6 +159,46 @@ class Sketch {
 
 		/* add objects */
 		this.addObjects();
+
+		/* mouse movement */
+		this.mouseMovement();
+	}
+
+	addEffect() {
+		/* post processing */
+		this.effectComposer = new EffectComposer(this.renderer);
+		// this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+		// this.effectComposer.setSize(this.sizes.width, this.sizes.height);
+
+		this.renderPass = new RenderPass(this.scene, this.camera);
+		// this.renderPass.setSize(this.sizes.width, this.sizes.height);
+		this.waterEffect = new WaterEffect(this.waterTexture.texture);
+
+		const waterpass = new EffectPass(this.camera, this.waterEffect);
+
+		this.renderPass.renderToScreen = false;
+		waterpass.renderToScreen = true;
+
+		this.effectComposer.addPass(this.renderPass);
+		this.effectComposer.addPass(waterpass);
+		// this.effectComposer.addPass(SMAAEffect);
+
+		// this.effectComposer.addPass(this.displacementPass);
+	}
+
+	mouseMovement() {
+		window.addEventListener('mousemove', (e) => {
+			this.mouse.x = (e.clientX / this.sizes.width) * 2 - 1;
+			this.mouse.y = -(e.clientY / this.sizes.height) * 2 + 1;
+
+			this.raycaster.setFromCamera(this.mouse, this.camera);
+
+			const point = {
+				x: e.clientX / this.sizes.width,
+				y: e.clientY / this.sizes.height,
+			};
+			this.waterTexture.addPoint(point);
+		});
 	}
 
 	loadTextures() {
@@ -168,6 +232,7 @@ class Sketch {
 			uniforms: {
 				uTime: { value: 0 },
 				uTxt1: { value: this.textures[0] },
+				uMouse: { value: new THREE.Vector3() },
 				uResolution: { value: new THREE.Vector2(this.sizes.width, this.sizes.height) },
 			},
 			vertexShader: raysVertexShader,
@@ -342,7 +407,7 @@ class Sketch {
 	}
 
 	addStar() {
-		let N = 150;
+		let N = 200;
 		let radius = this.geometries.sphereGeometry?.parameters.radius * 2.5;
 		let position = new Float32Array(N * 3);
 		const scales = new Float32Array(N * 1);
@@ -396,6 +461,8 @@ class Sketch {
 	}
 
 	tick() {
+		this.waterTexture.update();
+
 		this.time = this.clock.getElapsedTime();
 
 		/* uniform time for rays */
@@ -421,14 +488,15 @@ class Sketch {
 			this.mesh.star.position.x += Math.cos(this.time) * 0.2;
 
 			// this.mesh.star.position.z += Math.cos(this.time);
-
-			// this.mesh.star.rotation.z += Math.cos(this.time) * 0.001;
-			// this.mesh.star.rotation.z += Math.sin(this.time) * 0.001;
+			this.mesh.star.rotation.z += Math.sin(2 * Math.PI) * 0.001;
+			this.mesh.star.rotation.z += Math.cos(2 * Math.PI) * 0.001;
 		}
 
 		this.controller.update();
 		window.requestAnimationFrame(() => this.tick());
+
 		this.renderer.render(this.scene, this.camera);
+		this.effectComposer.render(this.clock.getDelta());
 	}
 }
 

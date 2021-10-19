@@ -2,32 +2,23 @@ uniform vec2 uResolution;
 
 uniform float uTime;
 uniform sampler2D uTxt1;
+uniform vec3 uMouse;
 
 varying vec2 vUv;
 varying float vWave;
+varying vec3 vPosition;
 
-
-// #include ./smoke.glsl;
-#include ../noise/simplex/4d.glsl;
-#include ./wave.glsl;
-
-
-
-
-float rayStrength(vec2 raySource, vec2 rayRefDirection, vec2 coord, float seedA, float seedB, float speed)
-{
+float rayStrength(vec2 raySource, vec2 rayRefDirection, vec2 coord, float seedA, float seedB, float speed) {
 	vec2 sourceToCoord = coord - raySource;
 	float cosAngle = dot(normalize(sourceToCoord), rayRefDirection);
 
-	return clamp(
-		(0.45 + 0.15 * sin(cosAngle * seedA + uTime * speed)) +
-		(0.3 + 0.2 * cos(-cosAngle * seedB + uTime * speed)),
-		0.0, 1.0) *
+	return clamp((0.45 + 0.15 * sin(cosAngle * seedA + uTime * speed)) +
+		(0.3 + 0.2 * cos(-cosAngle * seedB + uTime * speed)), 0.0, 1.0) *
 		clamp((uResolution.x - length(sourceToCoord)) / uResolution.x, 0.5, 1.0);
 }
 
-void main(){
-    vec2 uv = gl_FragCoord.xy / uResolution.xy;
+void main() {
+	vec2 uv = gl_FragCoord.xy / uResolution.xy;
 	uv.y = 1.0 - uv.y;
 	vec2 coord = vec2(gl_FragCoord.x, uResolution.y - gl_FragCoord.y);
 
@@ -38,63 +29,36 @@ void main(){
 	float raySeedB1 = 21.11349;
 	float raySpeed1 = 1.5;
 
-    vec2 rayPos2 = vec2(uResolution.x * 0.6, uResolution.y * -0.6);
+	vec2 rayPos2 = vec2(uResolution.x * 0.6, uResolution.y * -0.6);
 	vec2 rayRefDir2 = normalize(vec2(1.0, 0.241));
 	const float raySeedA2 = 22.39910;
 	const float raySeedB2 = 18.0234;
 	const float raySpeed2 = 1.1;
 
     // Calculate the colour of the sun rays on the current fragment
-	vec4 rays1 =
-		vec4(1.0, 1.0, 1.0, 1.0) *
+	vec4 rays1 = vec4(1.0, 1.0, 1.0, 1.0) *
 		rayStrength(rayPos1, rayRefDir1, coord, raySeedA1, raySeedB1, raySpeed1);
 
-	vec4 rays2 =
-		vec4(1.0, 1.0, 1.0, 1.0) *
+	vec4 rays2 = vec4(1.0, 1.0, 1.0, 1.0) *
 		rayStrength(rayPos2, rayRefDir2, coord, raySeedA2, raySeedB2, raySpeed2);
 
-
-    vec4 fragColor = rays1 * 0.5 + rays2 * 0.4;
+	vec4 fragColor = rays1 * 0.5 + rays2 * 0.4;
 
 	float wave = vWave * 0.2;
-	vec4 displace = texture2D(uTxt1, vUv + wave);
-
-	 vec2 displaceUV = vec2(
-        vUv.x,
-        vUv.y
-    );
-
-	//  displaceUV.y = mix(vUv.y, displace.b - 0.005 , abs(sin(uTime) -.5));
-	//  displaceUV.x = mix(vUv.x, displace.b - 0.005 , abs(sin(uTime) -.5));
 
 	float r = texture2D(uTxt1, vUv).r;
 	float g = texture2D(uTxt1, vUv + wave).g;
 	float b = texture2D(uTxt1, vUv + wave).b;
   	// Put them back together
-  	vec3 txt = vec3(r, g, b);
-
-	// vec4 txt = texture2D(uTxt1, vUv + wave);
-
-    // vec2 uv1 = gl_FragCoord.xy / uResolution.xy;
-    // float n = nestedNoise(uv1 * 6.);
-
-	// vec4 smoke = vec4(mix(vec3(.0, .0, .0), vec3(1., 1., 1.), n), 1.);
-	// vec4 wave = wave(gl_FragColor, gl_FragCoord);
-	// float n1 = snoise(vec3(uv1, 1.0));
-
-	// uv1.x  *= sin(n1 * uTime * 2.) * 0.5;
-	// uv1.y  *= sin(n1 * uTime * 2.) * 0.5;
-
-    // Attenuate brightness towards the bottom, simulating light-loss due to depth.
-	// Give the whole thing a blue-green tinge as well.
+	vec3 txt = vec3(r, g, b);
 	float brightness = 1.0 - (coord.y / uResolution.y);
-	fragColor.x *= 0.24 + (brightness * 0.1);
-	fragColor.y *= 0.07 + (brightness * 0.1);
-	fragColor.z *= txt.z * 0.25 + 0.38 + (brightness * 0.2);;
+	fragColor.x *= 0.0 + (brightness * 0.1);
+	fragColor.y *= 0.0 + (brightness * 0.1);
+	fragColor.z *= txt.z * 0.25 + 0.01 + (brightness * 0.2);;
 
+	vec2 direction = normalize(vPosition.xy - uMouse.xy);
 
-
-
-    gl_FragColor = fragColor;
+	gl_FragColor = fragColor;
+	// gl_FragColor = vec4(direction, 0.0, 1.0);
 
 }
