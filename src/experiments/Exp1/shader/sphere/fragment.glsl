@@ -1,5 +1,3 @@
-uniform sampler2D uTxt1;
-
 varying vec2 vUv;
 varying vec3 vColor;
 varying vec3 vNormal;

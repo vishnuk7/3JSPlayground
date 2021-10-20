@@ -2,11 +2,9 @@ uniform vec2 uResolution;
 
 uniform float uTime;
 uniform sampler2D uTxt;
-uniform vec3 uMouse;
 
 varying vec2 vUv;
 varying float vWave;
-varying vec3 vPosition;
 
 float rayStrength(vec2 raySource, vec2 rayRefDirection, vec2 coord, float seedA, float seedB, float speed) {
 	vec2 sourceToCoord = coord - raySource;

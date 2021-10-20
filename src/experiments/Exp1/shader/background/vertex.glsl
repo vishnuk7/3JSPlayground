@@ -1,8 +1,6 @@
-uniform float uProgress;
 uniform float uTime;
 
 varying vec2 vUv;
-varying vec3 vColor;
 varying float vWave;
 varying vec3 vPosition;
 
