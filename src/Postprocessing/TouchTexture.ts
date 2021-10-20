@@ -30,13 +30,13 @@ const easeOutQuad = (t: number, b: number, c: number, d: number) => {
 	return -c * t * (t - 2) + b;
 };
 
-export class WaterTexture {
+export class TouchTexture {
 	size: number;
 	radius: number;
 	height: number;
 	width: number;
-	canvas: HTMLCanvasElement;
-	ctx: CanvasRenderingContext2D;
+	canvas: HTMLCanvasElement | undefined;
+	ctx: CanvasRenderingContext2D | undefined;
 	maxAge: number;
 	points: Ipoints[];
 	last: Ilast | null;
@@ -59,7 +59,7 @@ export class WaterTexture {
 		this.initTexture();
 		this.texture = new Texture(this.canvas);
 		console.log(options.debug);
-		if (options.debug) document.body.append(this.canvas);
+		if (options.debug && this.canvas) document.body.append(this.canvas);
 	}
 	// Initialize our canvas
 	initTexture() {
@@ -71,8 +71,10 @@ export class WaterTexture {
 		this.clear();
 	}
 	clear() {
-		this.ctx.fillStyle = 'black';
-		this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+		if (this.ctx && this.canvas) {
+			this.ctx.fillStyle = 'black';
+			this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+		}
 	}
 	addPoint(point: Ipoint) {
 		let force = 0;
@@ -142,15 +144,17 @@ export class WaterTexture {
 
 		let offset = this.width * 5;
 		// 1. Give the shadow a high offset.
-		ctx.shadowOffsetX = offset;
-		ctx.shadowOffsetY = offset;
-		ctx.shadowBlur = radius * 1;
-		ctx.shadowColor = `rgba(${color},${0.2 * intensity})`;
+		if (this.ctx) {
+			this.ctx.shadowOffsetX = offset;
+			this.ctx.shadowOffsetY = offset;
+			this.ctx.shadowBlur = radius * 1;
+			this.ctx.shadowColor = `rgba(${color},${0.2 * intensity})`;
 
-		this.ctx.beginPath();
-		this.ctx.fillStyle = 'rgba(255,0,0,1)';
-		// 2. Move the circle to the other direction of the offset
-		this.ctx.arc(pos.x - offset, pos.y - offset, radius, 0, Math.PI * 2);
-		this.ctx.fill();
+			this.ctx.beginPath();
+			this.ctx.fillStyle = 'rgba(255,0,0,1)';
+			// 2. Move the circle to the other direction of the offset
+			this.ctx.arc(pos.x - offset, pos.y - offset, radius, 0, Math.PI * 2);
+			this.ctx.fill();
+		}
 	}
 }

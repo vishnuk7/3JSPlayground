@@ -1,7 +1,5 @@
-uniform float uProgress;
 uniform float uTime;
 uniform float uFreq;
-
 
 varying vec2 vUv;
 varying vec3 vColor;
@@ -15,19 +13,19 @@ vec3 hsv2rgb(vec3 c) {
   return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
-void main(){
+void main() {
 
-    float noise = snoise(position*uFreq + uTime/20.);
+  float noise = snoise(position * uFreq + uTime / 20.);
 
     //distorting sphere
-    vec3 newPosition = position*0.75 * (noise + 0.5);
+  vec3 newPosition = position * 0.75 * (noise + 0.5);
 
-    vColor = hsv2rgb(vec3(noise*0.1 + 0.03, 0.8, 0.8));
+  vColor = hsv2rgb(vec3(noise * 0.1 + 0.03, 0.8, 0.8));
 
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
 
     //varying
-    vUv = uv;
+  vUv = uv;
     // vColor = vec3(noise);
-    vNormal = normal;
+  vNormal = normal;
 }

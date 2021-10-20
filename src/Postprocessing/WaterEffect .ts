@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Effect } from 'postprocessing';
 
-import fragment from './shader/mouse/fragment.glsl';
+import fragment from '../shader/mouse/fragment.glsl';
 
 export class WaterEffect extends Effect {
 	constructor(texture: THREE.Texture) {

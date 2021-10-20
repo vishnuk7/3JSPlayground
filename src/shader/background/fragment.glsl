@@ -1,7 +1,7 @@
 uniform vec2 uResolution;
 
 uniform float uTime;
-uniform sampler2D uTxt1;
+uniform sampler2D uTxt;
 uniform vec3 uMouse;
 
 varying vec2 vUv;
@@ -46,9 +46,9 @@ void main() {
 
 	float wave = vWave * 0.2;
 
-	float r = texture2D(uTxt1, vUv).r;
-	float g = texture2D(uTxt1, vUv + wave).g;
-	float b = texture2D(uTxt1, vUv + wave).b;
+	float r = texture2D(uTxt, vUv).r;
+	float g = texture2D(uTxt, vUv + wave).g;
+	float b = texture2D(uTxt, vUv + wave).b;
   	// Put them back together
 	vec3 txt = vec3(r, g, b);
 	float brightness = 1.0 - (coord.y / uResolution.y);
@@ -56,9 +56,5 @@ void main() {
 	fragColor.y *= 0.0 + (brightness * 0.1);
 	fragColor.z *= txt.z * 0.25 + 0.01 + (brightness * 0.2);;
 
-	vec2 direction = normalize(vPosition.xy - uMouse.xy);
-
 	gl_FragColor = fragColor;
-	// gl_FragColor = vec4(direction, 0.0, 1.0);
-
 }
