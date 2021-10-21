@@ -60,6 +60,7 @@ class Sketch {
 		this.isController = true;
 		this.controller = new OrbitControls(this.camera, this.canvas);
 		this.controller.enableDamping = true;
+		this.controller.enabled = false;
 
 		/* loading manager */
 		this.loadingManger = new THREE.LoadingManager();
@@ -133,7 +134,9 @@ class Sketch {
 	}
 
 	settingGUI() {
-		this.pane.addInput(this.controller, 'enabled');
+		this.pane.addInput(this.controller, 'enabled', {
+			label: 'orbital control',
+		});
 	}
 
 	addObjects() {
@@ -162,10 +165,10 @@ class Sketch {
 			radius: 120,
 			segment: 120,
 			pane: this.pane,
+			scene: this.scene,
 		};
 
 		this.sphereBall = new SphereBall(options);
-		this.scene.add(this.sphereBall.mesh);
 	}
 
 	addSatellites() {
@@ -182,10 +185,11 @@ class Sketch {
 		const options = {
 			radius: this.sphereBall?.geometry.parameters.radius as number,
 			count: 200,
+			pane: this.pane,
+			scene: this.scene,
 		};
 
 		this.star = new Star(options);
-		if (this.star.mesh) this.scene.add(this.star.mesh);
 	}
 
 	tick() {

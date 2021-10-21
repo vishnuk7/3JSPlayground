@@ -13,24 +13,25 @@ interface Ioptions {
 
 export class Satellites {
 	radius: number;
-	POINTS_PARAMS: { count: number; radius: number; size: number };
+	params: { count: number; radius: number; size: number; hide: boolean };
 	geometry: BufferGeometry | undefined;
 	material: ShaderMaterial | undefined;
-	points: Points | undefined;
 	pane: Pane;
 	scene: Scene | undefined;
 	mesh: Points<BufferGeometry, ShaderMaterial> | undefined;
 	constructor(options: Ioptions) {
 		const { radius, scene, pane } = options;
-		this.POINTS_PARAMS = {
-			count: 6000,
-			radius: 2,
-			size: 190,
-		};
 
 		this.radius = radius;
 		this.scene = scene;
 		this.pane = pane;
+
+		this.params = {
+			count: 6000,
+			radius: 2,
+			size: 190,
+			hide: false,
+		};
 
 		this.addSatellites();
 		this.settingGUI();
@@ -47,8 +48,8 @@ export class Satellites {
 			if (this.mesh && this.scene) this.scene.remove(this.mesh);
 		}
 
-		let N = this.POINTS_PARAMS.count;
-		let radius = this.radius + this.POINTS_PARAMS.radius;
+		let N = this.params.count;
+		let radius = this.radius + this.params.radius;
 		let position = new Float32Array(N * 3);
 		this.geometry = new BufferGeometry();
 
@@ -82,7 +83,7 @@ export class Satellites {
 			blending: AdditiveBlending,
 			vertexColors: true,
 			uniforms: {
-				uSize: { value: this.POINTS_PARAMS.size },
+				uSize: { value: this.params.size },
 				uTime: { value: 0 },
 			},
 			transparent: true,
@@ -100,14 +101,13 @@ export class Satellites {
 			title: 'Satellite',
 		});
 
-		if (this.points)
-			satellite.addInput(this.points, 'visible', {
-				label: 'un-hide',
-			});
+		satellite.addInput(this.params, 'hide').on('change', (ev) => {
+			if (this.mesh) this.mesh.visible = !ev.value;
+		});
 
 		if (this.material)
 			satellite
-				.addInput(this.material.uniforms.uSize, 'value', {
+				.addInput(this.params, 'size', {
 					min: 50,
 					max: 1500,
 					step: 50,
@@ -117,7 +117,7 @@ export class Satellites {
 				});
 
 		satellite
-			.addInput(this.POINTS_PARAMS, 'count', {
+			.addInput(this.params, 'count', {
 				min: 500,
 				max: 20000,
 				step: 1,
@@ -127,9 +127,9 @@ export class Satellites {
 			});
 
 		satellite
-			.addInput(this.POINTS_PARAMS, 'radius', {
+			.addInput(this.params, 'radius', {
 				min: 5,
-				max: 20,
+				max: 40,
 				step: 1,
 			})
 			.on('change', (ev) => {

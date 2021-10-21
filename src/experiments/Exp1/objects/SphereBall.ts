@@ -1,4 +1,4 @@
-import { Mesh, ShaderMaterial, SphereGeometry } from 'three';
+import { Mesh, Scene, ShaderMaterial, SphereGeometry } from 'three';
 import { Pane } from 'tweakpane';
 
 /* shader */
@@ -9,6 +9,7 @@ interface Ioptions {
 	radius: number;
 	segment: number;
 	pane: Pane;
+	scene: Scene;
 }
 
 export class SphereBall {
@@ -16,8 +17,12 @@ export class SphereBall {
 	material: ShaderMaterial;
 	mesh: Mesh;
 	private pane: Pane;
+	scene: Scene;
+	params: { hide: boolean };
 	constructor(options: Ioptions) {
-		const { radius, segment, pane } = options;
+		const { radius, segment, pane, scene } = options;
+
+		this.scene = scene;
 
 		this.geometry = new SphereGeometry(radius, segment, segment);
 		this.material = new ShaderMaterial({
@@ -30,6 +35,13 @@ export class SphereBall {
 			fragmentShader,
 		});
 		this.mesh = new Mesh(this.geometry, this.material);
+		this.scene.add(this.mesh);
+		this.mesh.visible = !false;
+
+		this.params = {
+			hide: false,
+		};
+
 		this.pane = pane;
 		this.settingGUI();
 	}
@@ -38,8 +50,8 @@ export class SphereBall {
 			title: 'Sphere',
 		});
 
-		sphereGUI.addInput(this.mesh, 'visible', {
-			label: 'un-hide',
+		sphereGUI.addInput(this.params, 'hide').on('change', (ev) => {
+			this.mesh.visible = !ev.value;
 		});
 
 		sphereGUI.addInput(this.material.uniforms.uFreq, 'value', {

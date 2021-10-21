@@ -1,12 +1,15 @@
-import { AdditiveBlending, BufferAttribute, BufferGeometry, Points, ShaderMaterial } from 'three';
+import { AdditiveBlending, BufferAttribute, BufferGeometry, Points, Scene, ShaderMaterial } from 'three';
 
 /* shader */
 import vertexShader from '../shader/star/vertex.glsl';
 import fragmentShader from '../shader/star/fragment.glsl';
+import { Pane } from 'tweakpane';
 
 interface Ioption {
 	radius: number;
 	count: number;
+	pane: Pane;
+	scene: Scene;
 }
 
 export class Star {
@@ -15,16 +18,31 @@ export class Star {
 	geometry: BufferGeometry | undefined;
 	material: ShaderMaterial | undefined;
 	mesh: Points<BufferGeometry, ShaderMaterial> | undefined;
+	pane: Pane;
+	scene: Scene;
+
+	params: { count: number; hide: boolean };
 	constructor(options: Ioption) {
-		const { radius, count } = options;
+		const { radius, count, pane, scene } = options;
 		this.radius = radius;
 		this.count = count;
+		this.pane = pane;
+		this.scene = scene;
+
+		this.params = { count: 200, hide: false };
 
 		this.addStar();
+		this.settingGUI();
 	}
 
 	addStar() {
-		let N = this.count;
+		if (this.mesh !== undefined || this.mesh !== null) {
+			this.geometry?.dispose();
+			this.material?.dispose();
+			if (this.mesh) this.scene.remove(this.mesh);
+		}
+
+		let N = this.params.count;
 		let radius = this.radius * 2.5;
 		let position = new Float32Array(N * 3);
 		const scales = new Float32Array(N * 1);
@@ -70,6 +88,30 @@ export class Star {
 		});
 
 		this.mesh = new Points(this.geometry, this.material);
+		console.log(this.scene);
+		this.scene.add(this.mesh);
+	}
+
+	settingGUI() {
+		const stars = this.pane.addFolder({
+			title: 'Stars',
+		});
+
+		stars.addInput(this.params, 'hide').on('change', (e) => {
+			if (this.mesh) this.mesh.visible = !e.value;
+		});
+
+		stars
+			.addInput(this.params, 'count', {
+				min: 100,
+				max: 800,
+				step: 1,
+			})
+			.on('change', (e) => {
+				if (e.last) {
+					this.addStar();
+				}
+			});
 	}
 
 	update(time: number) {

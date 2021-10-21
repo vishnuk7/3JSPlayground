@@ -20,6 +20,7 @@ export class Background {
 	mesh: Mesh;
 	private texture: Texture;
 	private pane: Pane;
+	params: { hide: boolean };
 
 	constructor(options: Ioptions) {
 		const { width, height, segment, pane, textureLoader } = options;
@@ -36,6 +37,7 @@ export class Background {
 		});
 		this.mesh = new Mesh(this.geometry, this.material);
 		this.pane = pane;
+		this.params = { hide: true };
 		this.settingGUI();
 	}
 
@@ -44,8 +46,8 @@ export class Background {
 			title: 'Background',
 		});
 		background.addInput(this.material, 'wireframe');
-		background.addInput(this.mesh, 'visible', {
-			label: 'un-hide',
+		background.addInput(this.params, 'hide').on('change', (ev) => {
+			this.mesh.visible = !ev.value;
 		});
 	}
 
