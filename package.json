@@ -21,6 +21,7 @@
 		"tweakpane": "^3.0.5",
 		"typescript": "^4.3.2",
 		"vite": "^2.5.4",
-		"vite-plugin-glsl": "0.0.4"
+		"vite-plugin-glsl": "0.0.4",
+		"vite-plugin-pug": "^0.3.0"
 	}
 }
