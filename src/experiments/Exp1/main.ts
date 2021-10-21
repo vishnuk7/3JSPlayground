@@ -10,6 +10,7 @@ import { SphereBall } from './objects/SphereBall';
 import { Satellites } from './objects/Satellites';
 import { Star } from './objects/Star';
 import { Postprocessing } from './Postprocessing/Postprocessing';
+import { TextMesh } from './objects/Text';
 
 interface IOption {
 	canvas: HTMLCanvasElement;
@@ -34,6 +35,7 @@ class Sketch {
 	sphereBall: SphereBall | undefined;
 	satellite: Satellites | undefined;
 	star: Star | undefined;
+	text: TextMesh | undefined;
 
 	constructor(options: IOption) {
 		this.scene = new THREE.Scene();
@@ -144,6 +146,7 @@ class Sketch {
 		this.addSphere();
 		this.addSatellites();
 		this.addStar();
+		this.addText();
 	}
 
 	addBackground() {
@@ -192,6 +195,16 @@ class Sketch {
 		this.star = new Star(options);
 	}
 
+	addText() {
+		const options = {
+			loadingManger: this.loadingManger,
+			scene: this.scene,
+			pane: this.pane,
+		};
+
+		this.text = new TextMesh(options);
+	}
+
 	tick() {
 		this.time = this.clock.getElapsedTime();
 
@@ -202,6 +215,8 @@ class Sketch {
 		if (this.satellite) this.satellite.update(this.time);
 
 		if (this.star) this.star.update(this.time);
+
+		if (this.text) this.text.update(this.time);
 
 		this.controller.update();
 		window.requestAnimationFrame(() => this.tick());

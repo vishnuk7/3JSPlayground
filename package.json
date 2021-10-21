@@ -7,8 +7,12 @@
 		"serve": "vite preview"
 	},
 	"dependencies": {
+		"i": "^0.3.7",
+		"load-bmfont": "^1.4.1",
+		"npm": "^8.1.0",
 		"postprocessing": "^6.23.1",
-		"three": "^0.132.2"
+		"three": "^0.132.2",
+		"three-bmfont-text": "^3.0.1"
 	},
 	"devDependencies": {
 		"@tweakpane/core": "^1.0.6",
