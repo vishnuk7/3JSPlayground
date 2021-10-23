@@ -1,34 +1,34 @@
-import { BufferGeometry } from 'three';
+//@ts-nocheck
 
-var createLayout = require('layout-bmfont-text');
-var inherits = require('inherits');
-var createIndices = require('quad-indices');
+import * as THREE from 'three';
+import createLayout from './layout';
+import inherits from 'inherits';
+import createIndices from 'quad-indices';
+import { computeBox, computeSphere } from './lib/utils';
+import { pages, ps, uvs_ } from './lib/vertices';
 
-var vertices = require('./lib/vertices');
-var utils = require('./lib/utils');
+var Base = THREE.BufferGeometry;
 
-var Base = BufferGeometry;
-
-module.exports = function createTextGeometry(opt) {
+const createTextGeometry = function createTextGeometry(opt) {
 	return new TextGeometry(opt);
 };
 
-function TextGeometry(opt) {
-	Base.call(this);
+class TextGeometry extends Base {
+    layout: any;
+	constructor(opt) {
+		super();
+		if (typeof opt === 'string') {
+			opt = { text: opt };
+		}
 
-	if (typeof opt === 'string') {
-		opt = { text: opt };
+		// use these as default values for any subsequent
+		// calls to update()
+		this._opt = Object.assign({}, opt);
+
+		// also do an initial setup...
+		if (opt) this.update(opt);
 	}
-
-	// use these as default values for any subsequent
-	// calls to update()
-	this._opt = Object.assign({}, opt);
-
-	// also do an initial setup...
-	if (opt) this.update(opt);
 }
-
-inherits(TextGeometry, Base);
 
 TextGeometry.prototype.update = function (opt) {
 	if (typeof opt === 'string') {
@@ -64,8 +64,8 @@ TextGeometry.prototype.update = function (opt) {
 	this.visibleGlyphs = glyphs;
 
 	// get common vertex data
-	var positions = vertices.positions(glyphs);
-	var uvs = vertices.uvs(glyphs, texWidth, texHeight, flipY);
+	var positions = ps(glyphs);
+	var uvs = uvs_(glyphs, texWidth, texHeight, flipY);
 	var indices = createIndices([], {
 		clockwise: true,
 		type: 'uint16',
@@ -83,7 +83,7 @@ TextGeometry.prototype.update = function (opt) {
 		this.removeAttribute('page');
 	} else if (opt.multipage) {
 		// enable multipage rendering
-		var pages = vertices.pages(glyphs);
+		var pages = pages(glyphs);
 		this.setAttribute('page', new THREE.BufferAttribute(pages, 1));
 	}
 };
@@ -100,7 +100,7 @@ TextGeometry.prototype.computeBoundingSphere = function () {
 		this.boundingSphere.center.set(0, 0, 0);
 		return;
 	}
-	utils.computeSphere(positions, this.boundingSphere);
+	computeSphere(positions, this.boundingSphere);
 	if (isNaN(this.boundingSphere.radius)) {
 		console.error(
 			'THREE.BufferGeometry.computeBoundingSphere(): ' +
@@ -122,5 +122,7 @@ TextGeometry.prototype.computeBoundingBox = function () {
 		bbox.makeEmpty();
 		return;
 	}
-	utils.computeBox(positions, bbox);
+	computeBox(positions, bbox);
 };
+
+export default createTextGeometry;
