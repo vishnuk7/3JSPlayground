@@ -197,7 +197,7 @@ class Sketch {
 
 	addText() {
 		const options = {
-			loadingManger: this.loadingManger,
+			loadingManager: this.loadingManger,
 			scene: this.scene,
 			pane: this.pane,
 		};
