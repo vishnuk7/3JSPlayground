@@ -37,7 +37,7 @@ export class Background {
 		});
 		this.mesh = new Mesh(this.geometry, this.material);
 		this.pane = pane;
-		this.params = { hide: true };
+		this.params = { hide: false };
 		this.settingGUI();
 	}
 

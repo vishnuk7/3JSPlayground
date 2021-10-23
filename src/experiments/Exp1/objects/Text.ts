@@ -25,7 +25,7 @@ interface Ioptions {
 
 export class TextMesh {
 	material: RawShaderMaterial | undefined;
-	params: { name: string; size: number; height: number; color: string };
+	params: { name: string; size: number; height: number; color: string; hide: boolean };
 	scene: Scene;
 	mesh: Mesh | undefined;
 	pane: Pane;
@@ -40,7 +40,7 @@ export class TextMesh {
 		this.textureLoader = new TextureLoader(loadingManager);
 		this.scene = scene;
 
-		this.params = { name: 'Vishnu', size: 60, height: 5, color: '#ffffff' };
+		this.params = { name: 'Vishnu', size: 60, height: 5, color: '#ffffff', hide: false };
 		this.pane = pane;
 
 		this.init();
@@ -101,6 +101,10 @@ export class TextMesh {
 	private settingGUI() {
 		const text = this.pane.addFolder({
 			title: 'Text',
+		});
+
+		text.addInput(this.params, 'hide').on('change', (ev) => {
+			if (this.mesh) this.mesh.visible = !ev.value;
 		});
 
 		text.addInput(this.params, 'name').on('change', (ev) => {

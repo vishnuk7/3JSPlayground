@@ -1,4 +1,4 @@
-import { AdditiveBlending, BufferAttribute, BufferGeometry, Points, Scene, ShaderMaterial } from 'three';
+import { AdditiveBlending, BufferAttribute, BufferGeometry, Color, Points, Scene, ShaderMaterial } from 'three';
 
 /* shader */
 import vertexShader from '../shader/star/vertex.glsl';
@@ -29,7 +29,7 @@ export class Star {
 		this.pane = pane;
 		this.scene = scene;
 
-		this.params = { count: 200, hide: false };
+		this.params = { count: 1000, hide: false };
 
 		this.addStar();
 		this.settingGUI();
@@ -46,6 +46,8 @@ export class Star {
 		let radius = this.radius * 2.5;
 		let position = new Float32Array(N * 3);
 		const scales = new Float32Array(N * 1);
+		let color = new Color();
+		const colors = new Float32Array(N * 3);
 		this.geometry = new BufferGeometry();
 
 		let inc = Math.PI * (3 - Math.sqrt(5));
@@ -69,11 +71,18 @@ export class Star {
 			position[3 * i + 1] = radius * y;
 			position[3 * i + 2] = radius * z;
 
+			color.setHSL(i / N, 1.0, 0.5);
+
+			colors[3 * i] = color.r;
+			colors[3 * i + 1] = color.g;
+			colors[3 * i + 2] = color.b;
+
 			scales[i] = Math.random();
 		}
 
 		this.geometry.setAttribute('position', new BufferAttribute(position, 3));
 		this.geometry.setAttribute('aScale', new BufferAttribute(scales, 1));
+		this.geometry.setAttribute('aColors', new BufferAttribute(colors, 3));
 
 		this.material = new ShaderMaterial({
 			depthWrite: false,
@@ -81,6 +90,7 @@ export class Star {
 			vertexColors: true,
 			uniforms: {
 				uTime: { value: 0 },
+				uAlpha: { value: 0 },
 			},
 			transparent: true,
 			vertexShader,
@@ -104,7 +114,7 @@ export class Star {
 		stars
 			.addInput(this.params, 'count', {
 				min: 100,
-				max: 800,
+				max: 2000,
 				step: 1,
 			})
 			.on('change', (e) => {
@@ -115,18 +125,18 @@ export class Star {
 	}
 
 	update(time: number) {
-		if (this.material) this.material.uniforms.uTime.value = time;
-
+		if (this.material) {
+			this.material.uniforms.uTime.value = time;
+			this.material.uniforms.uAlpha.value += 0.02;
+		}
 		if (this.mesh) {
-			this.mesh.position.y += Math.sin(time) * 0.2;
-			this.mesh.position.y += Math.cos(time) * 0.2;
-
-			this.mesh.position.x += Math.sin(time) * 0.2;
-			this.mesh.position.x += Math.cos(time) * 0.2;
-
+			// this.mesh.position.y += Math.sin(time) * 0.2;
+			// this.mesh.position.y += Math.cos(time) * 0.2;
+			// this.mesh.position.x += Math.sin(time) * 0.2;
+			// this.mesh.position.x += Math.cos(time) * 0.2;
 			// this.mesh.position.z += Math.cos(time);
-			this.mesh.rotation.z += Math.sin(2 * Math.PI) * 0.001;
-			this.mesh.rotation.z += Math.cos(2 * Math.PI) * 0.001;
+			// this.mesh.rotation.z += Math.sin(2 * Math.PI) * 0.001;
+			// this.mesh.rotation.z += Math.cos(2 * Math.PI) * 0.001;
 		}
 	}
 }
