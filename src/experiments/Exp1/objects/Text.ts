@@ -16,6 +16,7 @@ import { Pane } from 'tweakpane';
 import vertexShader from '../shader/text/vertex.glsl';
 import fragmentShader from '../shader/text/fragment.glsl';
 import createTextGeometry from '../../../BnfText';
+import latoPng from '../../../../static/Exp1/Font/Lato.png';
 
 interface Ioptions {
 	loadingManager: LoadingManager;
@@ -48,7 +49,7 @@ export class TextMesh {
 	}
 
 	init() {
-		this.textureLoader.load('/static/Exp1/font/Lato.png', async (t) => {
+		this.textureLoader.load(latoPng, async (t) => {
 			this.texture = t;
 
 			const res = await fetch('/static/Exp1/font/Lato.json');
