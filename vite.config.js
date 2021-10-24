@@ -1,18 +1,19 @@
 import { defineConfig } from 'vite';
 import pugPlugin from 'vite-plugin-pug';
 import glsl from 'vite-plugin-glsl';
-import fs from 'fs';
+import { resolve } from 'path';
 
 const options = { pretty: true }; // FIXME: pug pretty is deprecated!
 const locals = { name: 'My Pug' };
 
 export default defineConfig({
-	// fallback: {
-	// 	buffer: require.resolve('buffer/'),
-	// 	fs: require.resolve('fs/'),
-	// },
-	optimizeDeps: {
-		allowNodeBuiltins: ['fs', 'os'],
+	build: {
+		rollupOptions: {
+			input: {
+				main: resolve(__dirname, 'index.html'),
+				exp1: resolve(__dirname, 'src/experiments/Exp1/index.html'),
+			},
+		},
 	},
 	define: {
 		'process.env': {},
@@ -20,12 +21,5 @@ export default defineConfig({
 	server: {
 		host: true,
 	},
-	plugins: [
-		glsl(),
-		pugPlugin(options, locals),
-		// new ProvidePlugin({
-		// 	process: 'process/browser',
-		// 	Buffer: ['buffer', 'Buffer'],
-		// }),
-	],
+	plugins: [glsl(), pugPlugin(options, locals)],
 });
