@@ -44,6 +44,7 @@ export class Background {
 	private settingGUI() {
 		const background = this.pane.addFolder({
 			title: 'Background',
+			expanded: false,
 		});
 		background.addInput(this.material, 'wireframe');
 		background.addInput(this.params, 'hide').on('change', (ev) => {

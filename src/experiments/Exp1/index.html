@@ -5,19 +5,20 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.17/tailwind.min.css"
+        integrity="sha512-yXagpXH0ulYCN8G/Wl7GK+XIpdnkh5fGHM5rOzG8Kb9Is5Ua8nZWRx5/RaKypcbSHc56mQe0GBG0HQIGTmd8bw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Experiment#1</title>
 </head>
 
 <body>
     <div id="app">
         <canvas id="canvas"></canvas>
-        <div>
-            Hi, This is an experiment project that I'm making to learn three.js and shaders, it is clone of <a href="https://grantyi.com/" >grantyi.com</a>
+        <div class="flex flex-col md:flex-row items-center justify-between h-screen w-screen md:w-1/3 md:ml-10">
+            <p>&nbsp;</p>
+            <p class="z-10 text-white text-xl order-last text-center md:text-left" >Hi, This is an experiment project that I'm making to learn three.js and shaders, it is clone of <a class="text-yellow-400" href="https://grantyi.com/" target="_blank">grantyi.com</a></p>
         </div>
     </div>
-    <script>
-        var global = global || window;
-    </script>
     <script type="module" src="./main.ts"></script>
 </body>
 

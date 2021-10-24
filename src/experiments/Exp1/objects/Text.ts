@@ -101,6 +101,7 @@ export class TextMesh {
 	private settingGUI() {
 		const text = this.pane.addFolder({
 			title: 'Text',
+			expanded: false,
 		});
 
 		text.addInput(this.params, 'hide').on('change', (ev) => {

@@ -105,6 +105,7 @@ export class Star {
 	settingGUI() {
 		const stars = this.pane.addFolder({
 			title: 'Stars',
+			expanded: false,
 		});
 
 		stars.addInput(this.params, 'hide').on('change', (e) => {
@@ -127,7 +128,7 @@ export class Star {
 	update(time: number) {
 		if (this.material) {
 			this.material.uniforms.uTime.value = time;
-			this.material.uniforms.uAlpha.value += 0.02;
+			this.material.uniforms.uAlpha.value += 0.01;
 		}
 		if (this.mesh) {
 			// this.mesh.position.y += Math.sin(time) * 0.2;

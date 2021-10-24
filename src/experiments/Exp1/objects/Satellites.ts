@@ -99,6 +99,7 @@ export class Satellites {
 	private settingGUI() {
 		const satellite = this.pane.addFolder({
 			title: 'Satellite',
+			expanded: false,
 		});
 
 		satellite.addInput(this.params, 'hide').on('change', (ev) => {
