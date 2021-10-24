@@ -17,6 +17,7 @@ import vertexShader from '../shader/text/vertex.glsl';
 import fragmentShader from '../shader/text/fragment.glsl';
 import createTextGeometry from '../../../BnfText';
 import latoPng from '../../../../static/Exp1/Font/Lato.png';
+import latoJSON from '../../../../static/Exp1/Font/Lato.json';
 
 interface Ioptions {
 	loadingManager: LoadingManager;
@@ -32,7 +33,7 @@ export class TextMesh {
 	pane: Pane;
 	texture: Texture | undefined;
 	textureLoader: TextureLoader;
-	font: string | undefined;
+	font: any;
 	geometry: TextGeometry | undefined;
 
 	constructor(options: Ioptions) {
@@ -52,9 +53,7 @@ export class TextMesh {
 		this.textureLoader.load(latoPng, async (t) => {
 			this.texture = t;
 
-			const res = await fetch('/static/Exp1/font/Lato.json');
-			const data = await res.text();
-			this.font = JSON.parse(data);
+			this.font = latoJSON;
 
 			this.createText();
 		});
