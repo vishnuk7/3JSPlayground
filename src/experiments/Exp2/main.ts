@@ -7,4 +7,4 @@ const options = {
 	canvas: document.getElementById('canvas') as HTMLCanvasElement,
 };
 
-const sketch = new Sketch(options);
+new Sketch(options);

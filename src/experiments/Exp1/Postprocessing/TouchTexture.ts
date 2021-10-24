@@ -126,7 +126,6 @@ export class TouchTexture {
 			y: point.y * this.height,
 		};
 		const radius = this.radius;
-		const ctx = this.ctx;
 
 		let intensity = 1;
 		if (point.age < this.maxAge * 0.3) {
