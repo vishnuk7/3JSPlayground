@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import { Clock, LoadingManager, PerspectiveCamera, Scene, TextureLoader, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { Pane } from 'tweakpane';
@@ -38,13 +38,13 @@ class Sketch {
 	text: TextMesh | undefined;
 
 	constructor(options: IOption) {
-		this.scene = new THREE.Scene();
+		this.scene = new Scene();
 		this.sizes = {
 			width: window.innerWidth,
 			height: window.innerHeight,
 		};
 		/* camera */
-		this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.001, 1000);
+		this.camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.001, 1000);
 		this.camera.position.set(0, 0, 150);
 		this.setFovCamera();
 		this.camera.updateProjectionMatrix();
@@ -53,7 +53,7 @@ class Sketch {
 		this.canvas = options.canvas;
 
 		/* renderer */
-		this.renderer = new THREE.WebGLRenderer({
+		this.renderer = new WebGLRenderer({
 			canvas: this.canvas,
 			antialias: true,
 		});
@@ -65,13 +65,13 @@ class Sketch {
 		this.controller.enabled = false;
 
 		/* loading manager */
-		this.loadingManger = new THREE.LoadingManager();
+		this.loadingManger = new LoadingManager();
 
 		/* texture loader */
-		this.textureLoader = new THREE.TextureLoader(this.loadingManger);
+		this.textureLoader = new TextureLoader(this.loadingManger);
 
 		/* clock */
-		this.clock = new THREE.Clock();
+		this.clock = new Clock();
 		this.time = 0;
 
 		/* change the size of canvas when window resized  */

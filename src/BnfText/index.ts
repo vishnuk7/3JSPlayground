@@ -1,20 +1,20 @@
 //@ts-nocheck
+import { BufferGeometry, BufferAttribute, Sphere, Box3 } from 'three';
 
-import * as THREE from 'three';
 import createLayout from './layout';
 import inherits from 'inherits';
 import createIndices from 'quad-indices';
 import { computeBox, computeSphere } from './lib/utils';
 import { pages, ps, uvs_ } from './lib/vertices';
 
-var Base = THREE.BufferGeometry;
+var Base = BufferGeometry;
 
 const createTextGeometry = function createTextGeometry(opt) {
 	return new TextGeometry(opt);
 };
 
 class TextGeometry extends Base {
-    layout: any;
+	layout: any;
 	constructor(opt) {
 		super();
 		if (typeof opt === 'string') {
@@ -74,8 +74,8 @@ TextGeometry.prototype.update = function (opt) {
 
 	// update vertex data
 	this.setIndex(indices);
-	this.setAttribute('position', new THREE.BufferAttribute(positions, 2));
-	this.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+	this.setAttribute('position', new BufferAttribute(positions, 2));
+	this.setAttribute('uv', new BufferAttribute(uvs, 2));
 
 	// update multipage data
 	if (!opt.multipage && 'page' in this.attributes) {
@@ -84,13 +84,13 @@ TextGeometry.prototype.update = function (opt) {
 	} else if (opt.multipage) {
 		// enable multipage rendering
 		var pages = pages(glyphs);
-		this.setAttribute('page', new THREE.BufferAttribute(pages, 1));
+		this.setAttribute('page', new BufferAttribute(pages, 1));
 	}
 };
 
 TextGeometry.prototype.computeBoundingSphere = function () {
 	if (this.boundingSphere === null) {
-		this.boundingSphere = new THREE.Sphere();
+		this.boundingSphere = new Sphere();
 	}
 
 	var positions = this.attributes.position.array;
@@ -103,7 +103,7 @@ TextGeometry.prototype.computeBoundingSphere = function () {
 	computeSphere(positions, this.boundingSphere);
 	if (isNaN(this.boundingSphere.radius)) {
 		console.error(
-			'THREE.BufferGeometry.computeBoundingSphere(): ' +
+			'BufferGeometry.computeBoundingSphere(): ' +
 				'Computed radius is NaN. The ' +
 				'"position" attribute is likely to have NaN values.'
 		);
@@ -112,7 +112,7 @@ TextGeometry.prototype.computeBoundingSphere = function () {
 
 TextGeometry.prototype.computeBoundingBox = function () {
 	if (this.boundingBox === null) {
-		this.boundingBox = new THREE.Box3();
+		this.boundingBox = new Box3();
 	}
 
 	var bbox = this.boundingBox;
