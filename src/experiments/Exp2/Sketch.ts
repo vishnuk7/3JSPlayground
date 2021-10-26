@@ -1,35 +1,37 @@
-import * as THREE from 'three';
+import { Clock, LoadingManager, PerspectiveCamera, Scene, TextureLoader, WebGLRenderer } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { Pane } from 'tweakpane';
+
+// import moduleName from '';
 
 interface IOption {
 	canvas: HTMLCanvasElement;
 }
 
 export class Sketch {
-	scene: THREE.Scene;
+	scene: Scene;
 	sizes: { width: number; height: number };
-	camera: THREE.PerspectiveCamera;
+	camera: PerspectiveCamera;
 	canvas: HTMLCanvasElement;
-	renderer: THREE.WebGLRenderer;
+	renderer: WebGLRenderer;
 	isController: boolean;
 	controller: OrbitControls;
 	pane: Pane;
 	paneParams: { [key: string]: string | number | boolean };
-	clock: THREE.Clock;
+	clock: Clock;
 	time: number;
-	loadingManger: THREE.LoadingManager;
-	textureLoader: THREE.TextureLoader;
+	loadingManger: LoadingManager;
+	textureLoader: TextureLoader;
 
 	constructor(options: IOption) {
-		this.scene = new THREE.Scene();
+		this.scene = new Scene();
 		this.sizes = {
 			width: window.innerWidth,
 			height: window.innerHeight,
 		};
 		/* camera */
-		this.camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.001, 1000);
+		this.camera = new PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.001, 1000);
 		this.camera.position.set(0, 0, 150);
 		this.setFovCamera();
 		this.camera.updateProjectionMatrix();
@@ -38,7 +40,7 @@ export class Sketch {
 		this.canvas = options.canvas;
 
 		/* renderer */
-		this.renderer = new THREE.WebGLRenderer({
+		this.renderer = new WebGLRenderer({
 			canvas: this.canvas,
 			antialias: true,
 		});
@@ -50,13 +52,13 @@ export class Sketch {
 		this.controller.enabled = false;
 
 		/* loading manager */
-		this.loadingManger = new THREE.LoadingManager();
+		this.loadingManger = new LoadingManager();
 
 		/* texture loader */
-		this.textureLoader = new THREE.TextureLoader(this.loadingManger);
+		this.textureLoader = new TextureLoader(this.loadingManger);
 
 		/* clock */
-		this.clock = new THREE.Clock();
+		this.clock = new Clock();
 		this.time = 0;
 
 		/* change the size of canvas when window resized  */
@@ -75,6 +77,19 @@ export class Sketch {
 
 		/* add objects */
 		this.addObjects();
+
+		this.test();
+	}
+	test() {
+		const customCanvas = document.getElementById('svg_canvas') as HTMLCanvasElement;
+		const ctx = customCanvas.getContext('2d');
+		const img = new Image();
+		img.onload = function () {
+			ctx?.drawImage(img, 0, 0, 100, 100);
+			const body = document.querySelector('body');
+			body?.appendChild(customCanvas);
+		};
+		img.src = './assets/svg/apple.svg';
 	}
 
 	setFovCamera() {
