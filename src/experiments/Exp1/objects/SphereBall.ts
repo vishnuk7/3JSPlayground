@@ -48,6 +48,7 @@ export class SphereBall {
 	private settingGUI() {
 		const sphereGUI = this.pane.addFolder({
 			title: 'Sphere',
+			expanded: false,
 		});
 
 		sphereGUI.addInput(this.params, 'hide').on('change', (ev) => {

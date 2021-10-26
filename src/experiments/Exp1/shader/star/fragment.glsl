@@ -1,4 +1,10 @@
+uniform float uAlpha;
+
+varying vec3 vColor;
+
 void main() {
+    float alpha = sin(uAlpha + vColor.r * 10. + vColor.b * 20. + vColor.g * 50.);
+
     float strength = distance(gl_PointCoord, vec2(0.5));
     strength *= 2.0;
     strength = 1.0 - strength;
@@ -8,5 +14,5 @@ void main() {
 
     vec3 color = mix(color1, color2, strength);
 
-    gl_FragColor = vec4(color, 1.);
+    gl_FragColor = vec4(color, alpha);
 }

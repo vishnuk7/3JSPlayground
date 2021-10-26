@@ -6,6 +6,8 @@ import { Pane } from 'tweakpane';
 import vertexShader from '../shader/background/vertex.glsl';
 import fragmentShader from '../shader/background/fragment.glsl';
 
+import nosieImg from '../../../../static/Exp1/img/noise.jpg';
+
 interface Ioptions {
 	width: number;
 	height: number;
@@ -25,7 +27,7 @@ export class Background {
 	constructor(options: Ioptions) {
 		const { width, height, segment, pane, textureLoader } = options;
 		this.geometry = new PlaneGeometry(width, height, segment, segment);
-		this.texture = textureLoader.load('/static/Exp1/img/noise.jpg');
+		this.texture = textureLoader.load(nosieImg);
 		this.material = new ShaderMaterial({
 			uniforms: {
 				uTime: { value: 0 },
@@ -37,13 +39,14 @@ export class Background {
 		});
 		this.mesh = new Mesh(this.geometry, this.material);
 		this.pane = pane;
-		this.params = { hide: true };
+		this.params = { hide: false };
 		this.settingGUI();
 	}
 
 	private settingGUI() {
 		const background = this.pane.addFolder({
 			title: 'Background',
+			expanded: false,
 		});
 		background.addInput(this.material, 'wireframe');
 		background.addInput(this.params, 'hide').on('change', (ev) => {

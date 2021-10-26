@@ -1,13 +1,13 @@
 import {
 	Color,
-	FontLoader,
+	DoubleSide,
 	LoadingManager,
 	Mesh,
 	RawShaderMaterial,
 	Scene,
-	ShaderMaterial,
 	TextGeometry,
 	Texture,
+	TextureLoader,
 } from 'three';
 
 import { Pane } from 'tweakpane';
@@ -15,74 +15,107 @@ import { Pane } from 'tweakpane';
 /* shader */
 import vertexShader from '../shader/text/vertex.glsl';
 import fragmentShader from '../shader/text/fragment.glsl';
+import createTextGeometry from '../../../BnfText';
+import latoPng from '../../../../static/Exp1/Font/Lato.png';
+import latoJSON from '../../../../static/Exp1/Font/Lato.json';
 
 interface Ioptions {
-	loadingManger: LoadingManager;
+	loadingManager: LoadingManager;
 	pane: Pane;
 	scene: Scene;
 }
 
 export class TextMesh {
-	geometry: TextGeometry | undefined;
-	material: RawShaderMaterial;
-	params: { name: string; size: number; height: number; color: string };
+	material: RawShaderMaterial | undefined;
+	params: { name: string; size: number; height: number; color: string; hide: boolean };
 	scene: Scene;
-	mesh: Mesh<TextGeometry, ShaderMaterial> | undefined;
+	mesh: Mesh | undefined;
 	pane: Pane;
 	texture: Texture | undefined;
-	fontLoader: FontLoader;
+	textureLoader: TextureLoader;
+	font: any;
+	geometry: TextGeometry | undefined;
 
 	constructor(options: Ioptions) {
-		const { loadingManger, pane, scene } = options;
+		const { loadingManager, pane, scene } = options;
 
-		this.fontLoader = new FontLoader(loadingManger);
+		this.textureLoader = new TextureLoader(loadingManager);
 		this.scene = scene;
 
-		this.params = { name: 'Vishnu', size: 60, height: 5, color: '#ffffff' };
+		this.params = { name: 'Vishnu', size: 60, height: 5, color: '#ffffff', hide: false };
 		this.pane = pane;
 
 		this.init();
+		this.settingGUI();
 	}
 
 	init() {
-		this.fontLoader.load('/static/Exp1/font/Lato.json', (font) => {
-			this.geometry = new TextGeometry(this.params.name, {
-				font: font,
-				size: this.params.size,
-				height: this.params.height,
-				curveSegments: 12,
-				bevelEnabled: true,
-				bevelThickness: 10,
-				bevelSize: 8,
-				bevelOffset: 0,
-				bevelSegments: 5,
-			});
+		this.textureLoader.load(latoPng, async (t) => {
+			this.texture = t;
+
+			this.font = latoJSON;
 
 			this.createText();
 		});
 	}
 
 	createText() {
-		if (this.mesh !== undefined || this.mesh !== null) {
+		if (this.geometry !== undefined || this.geometry !== null) {
 			this.geometry?.dispose();
 			this.material?.dispose();
 			if (this.mesh) this.scene.remove(this.mesh);
 		}
 
-		this.material = new ShaderMaterial({
+		//@ts-ignore
+		this.geometry = createTextGeometry({
+			text: this.params.name,
+			font: this.font,
+			align: 'left',
+			flipY: this.texture?.flipY,
+		});
+
+		this.material = new RawShaderMaterial({
 			vertexShader,
 			fragmentShader,
 			uniforms: {
-				uTime: { value: 0 },
-				uColor: { value: new Color(this.params.color) },
+				map: { value: this.texture },
+				color: { value: new Color(0xffffff) },
+				opacity: { value: 1 },
+				time: { value: 0 },
 			},
+			transparent: true,
+			side: DoubleSide,
 		});
 
+		//@ts-ignore
+		const layout = this.geometry?.layout;
 		this.mesh = new Mesh(this.geometry, this.material);
+		this.mesh.rotation.z = Math.PI;
+		this.mesh.rotation.y = Math.PI;
+
+		this.mesh.scale.set(0.6, 0.6, 0.6);
+		this.mesh.position.set(-0.6 * layout.width * 0.5, -0.6 * layout.height * 0.5, 110);
 		this.scene.add(this.mesh);
 	}
 
+	private settingGUI() {
+		const text = this.pane.addFolder({
+			title: 'Text',
+			expanded: false,
+		});
+
+		text.addInput(this.params, 'hide').on('change', (ev) => {
+			if (this.mesh) this.mesh.visible = !ev.value;
+		});
+
+		text.addInput(this.params, 'name').on('change', (ev) => {
+			if (ev.last) {
+				this.createText();
+			}
+		});
+	}
+
 	update(time: number) {
-		if (this.material) this.material.uniforms.uTime.value = time;
+		if (this.material) this.material.uniforms.time.value = time;
 	}
 }
