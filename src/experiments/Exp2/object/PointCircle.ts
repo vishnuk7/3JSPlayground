@@ -1,4 +1,4 @@
-import { BufferGeometry, Points, Scene, ShaderMaterial, TextureLoader, Vector3 } from 'three';
+import { BufferGeometry, Color, Points, Scene, ShaderMaterial, TextureLoader, Vector3 } from 'three';
 
 /* shader */
 import vertexShader from '../shader/point/vertex.glsl';
@@ -18,6 +18,9 @@ export class PointCircle {
 	scene: Scene;
 	texture: any;
 	coords: Vector3[];
+	points: Points<BufferGeometry, ShaderMaterial> | undefined;
+	color: Color | undefined;
+
 	constructor(options: IOptions) {
 		const { coords, scene } = options;
 
@@ -25,9 +28,14 @@ export class PointCircle {
 
 		this.geometry = new BufferGeometry();
 		this.material = new ShaderMaterial({
+			uniforms: {
+				uTime: { value: 0 },
+				uColor: { value: new Color('#ffffff') },
+			},
 			vertexShader,
 			fragmentShader,
 		});
+
 		this.coords = coords;
 		this.scene = scene;
 
@@ -35,10 +43,22 @@ export class PointCircle {
 	}
 
 	init() {
+		if (this.geometry) {
+			this.geometry.dispose();
+			this.material.dispose();
+			if (this.points) this.scene.remove(this.points);
+		}
+
 		this.geometry.setFromPoints(this.coords);
 
-		const points = new Points(this.geometry, this.material);
+		if (this.color) this.material.uniforms.uColor.value = this.color;
 
-		this.scene.add(points);
+		this.points = new Points(this.geometry, this.material);
+
+		this.scene.add(this.points);
+	}
+
+	update(time: number) {
+		this.material.uniforms.uTime.value = time;
 	}
 }
