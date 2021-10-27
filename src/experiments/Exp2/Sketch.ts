@@ -1,7 +1,19 @@
-import { Clock, LoadingManager, PerspectiveCamera, Scene, TextureLoader, WebGLRenderer } from 'three';
+import {
+	BoxGeometry,
+	Clock,
+	LoadingManager,
+	Mesh,
+	MeshBasicMaterial,
+	PerspectiveCamera,
+	Scene,
+	TextureLoader,
+	Vector3,
+	WebGLRenderer,
+} from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 import { Pane } from 'tweakpane';
+import { PointCircle } from './object/PointCircle';
 
 // import moduleName from '';
 
@@ -80,16 +92,51 @@ export class Sketch {
 
 		this.test();
 	}
-	test() {
+
+	addImageProcess(src: string) {
+		return new Promise((resolve, reject) => {
+			let img = new Image();
+			img.onload = () => resolve(img);
+			img.onerror = reject;
+			img.src = src;
+		});
+	}
+
+	async test() {
+		const svg = ['apple'];
+
 		const customCanvas = document.getElementById('svg_canvas') as HTMLCanvasElement;
+		const size = customCanvas.width;
 		const ctx = customCanvas.getContext('2d');
-		const img = new Image();
-		img.onload = function () {
-			ctx?.drawImage(img, 0, 0, 100, 100);
-			const body = document.querySelector('body');
-			body?.appendChild(customCanvas);
-		};
-		img.src = './assets/svg/apple.svg';
+
+		const imgCoords: Vector3[] = [];
+
+		const img = (await this.addImageProcess('./assets/svg/15.svg')) as HTMLImageElement;
+
+		if (ctx) {
+			ctx.drawImage(img, 0, 0, size, size);
+			const imgData = ctx.getImageData(0, 0, size, size);
+			const data = imgData.data;
+			for (let y = 0; y < size; y++) {
+				for (let x = 0; x < size; x++) {
+					let alpha = data[(y * size + x) * 4 + 3];
+					if (alpha > 0 && x % 2 === 0 && y % 2 !== 0) {
+						let x1 = 2 * (x - size / 2) * 0.5;
+						let y1 = -2 * (y - size / 2) * 0.5;
+						imgCoords.push(new Vector3(x1, y1, 2 * (Math.random() - 0.5)));
+					}
+				}
+			}
+
+			const options = {
+				coords: imgCoords,
+				scene: this.scene,
+			};
+
+			new PointCircle(options);
+		}
+
+		console.log(this.scene);
 	}
 
 	setFovCamera() {
@@ -115,7 +162,12 @@ export class Sketch {
 	}
 
 	addObjects() {
-		console.log('add objects');
+		// const geometry = new BoxGeometry(200, 200, 200);
+		// const material = new MeshBasicMaterial({
+		// 	color: 'red',
+		// });
+		// const mesh = new Mesh(geometry, material);
+		// this.scene.add(mesh);
 	}
 
 	tick() {
