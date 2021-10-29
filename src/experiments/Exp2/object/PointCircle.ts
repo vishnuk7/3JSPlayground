@@ -1,14 +1,31 @@
-import { BufferGeometry, Color, Points, Scene, ShaderMaterial, TextureLoader, Vector3 } from 'three';
+import {
+	AdditiveBlending,
+	BufferGeometry,
+	Color,
+	CustomBlending,
+	MultiplyBlending,
+	NormalBlending,
+	Points,
+	Scene,
+	ShaderMaterial,
+	SubtractiveBlending,
+	TextureLoader,
+	Vector2,
+	Vector3,
+} from 'three';
 
 /* shader */
 import vertexShader from '../shader/point/vertex.glsl';
 import fragmentShader from '../shader/point/fragment.glsl';
 
 import txt from '../assets/svg/1.png';
+import circle from '../assets/img/c2.png';
 
 interface IOptions {
 	coords: Vector3[];
 	scene: Scene;
+	width: number;
+	height: number;
 }
 
 export class PointCircle {
@@ -19,18 +36,28 @@ export class PointCircle {
 	texture: any;
 	coords: Vector3[];
 	points: Points<BufferGeometry, ShaderMaterial> | undefined;
-	color: Color | undefined;
+	foregroundColor: Color | undefined;
+	backgroundColor: Color | undefined;
 
 	constructor(options: IOptions) {
-		const { coords, scene } = options;
+		const { coords, scene, width, height } = options;
 
 		this.texture = new TextureLoader().load(txt);
 
 		this.geometry = new BufferGeometry();
 		this.material = new ShaderMaterial({
+			// alphaTest: 0.5,
+			// depthTest: false,
+			depthWrite: false,
+			blending: CustomBlending,
+			vertexColors: true,
+			transparent: true,
 			uniforms: {
+				uMap: { value: new TextureLoader().load(circle) },
 				uTime: { value: 0 },
-				uColor: { value: new Color('#ffffff') },
+				uBackgroundColor: { value: new Color() },
+				uForegroundColor: { value: new Color() },
+				uResolution: { value: new Vector2(width, height) },
 			},
 			vertexShader,
 			fragmentShader,
@@ -51,7 +78,9 @@ export class PointCircle {
 
 		this.geometry.setFromPoints(this.coords);
 
-		if (this.color) this.material.uniforms.uColor.value = this.color;
+		if (this.backgroundColor) this.material.uniforms.uBackgroundColor.value = this.backgroundColor;
+
+		if (this.foregroundColor) this.material.uniforms.uForegroundColor.value = this.foregroundColor;
 
 		this.points = new Points(this.geometry, this.material);
 

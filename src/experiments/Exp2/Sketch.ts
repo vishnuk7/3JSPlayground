@@ -120,6 +120,8 @@ export class Sketch {
 		const options = {
 			coords: [],
 			scene: this.scene,
+			width: this.sizes.width,
+			height: this.sizes.height,
 		};
 
 		this.pointCircle = new PointCircle(options);
@@ -228,7 +230,8 @@ export class Sketch {
 			// };
 
 			this.pointCircle.coords = imgCoords;
-			this.pointCircle.color = new Color(color.foregroundColor);
+			this.pointCircle.foregroundColor = new Color(color.foregroundColor);
+			this.pointCircle.backgroundColor = new Color(color.backgroundColor);
 			this.pointCircle.init();
 			this.scene.background = new Color(color.backgroundColor);
 		}

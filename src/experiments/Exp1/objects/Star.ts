@@ -88,11 +88,11 @@ export class Star {
 			depthWrite: false,
 			blending: AdditiveBlending,
 			vertexColors: true,
+			transparent: true,
 			uniforms: {
 				uTime: { value: 0 },
 				uAlpha: { value: 0 },
 			},
-			transparent: true,
 			vertexShader,
 			fragmentShader,
 		});
