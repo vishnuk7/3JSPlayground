@@ -1,14 +1,10 @@
 import {
-	AdditiveBlending,
 	BufferGeometry,
 	Color,
-	CustomBlending,
-	MultiplyBlending,
 	NormalBlending,
 	Points,
 	Scene,
 	ShaderMaterial,
-	SubtractiveBlending,
 	TextureLoader,
 	Vector2,
 	Vector3,
@@ -49,7 +45,7 @@ export class PointCircle {
 			// alphaTest: 0.5,
 			// depthTest: false,
 			depthWrite: false,
-			blending: CustomBlending,
+			blending: NormalBlending,
 			vertexColors: true,
 			transparent: true,
 			uniforms: {

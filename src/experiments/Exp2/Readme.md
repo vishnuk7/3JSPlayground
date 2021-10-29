@@ -12,7 +12,7 @@ Trying to learn to how to use SVG and three js together. In this experiment conv
 - [ ] Better Contrast
 - [ ] Smooth transition between when change one SVG to another SVG.
 - [ ] Mouse Hover.
-- [ ] Refactor.
+- [x] Refactor SvgCoords.
 - [ ] Drag and Drop SVG.
 - [ ] Validate if it is SVG.
 
