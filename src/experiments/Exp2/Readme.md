@@ -9,7 +9,7 @@ Trying to learn to how to use SVG and three js together. In this experiment conv
 - [x] Foreground and background color palette.
 - [x] Make point to circles.
 - [ ] Make point more pretty.
-- [ ] Better Contrast
+- [x] Better Contrast
 - [ ] Smooth transition between when change one SVG to another SVG.
 - [ ] Mouse Hover.
 - [x] Refactor SvgCoords.

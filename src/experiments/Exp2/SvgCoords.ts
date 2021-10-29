@@ -1,4 +1,6 @@
 import { Color, Scene, Vector3 } from 'three';
+import colorContrast from 'color-contrast';
+
 import { PointCircle } from './object/PointCircle';
 
 import { colorsPalette } from './colors';
@@ -71,18 +73,23 @@ export class SvgCoords {
 		const randColorName = colorsName[Math.floor(Math.random() * colorsName.length)];
 
 		//@ts-ignore
-		let backgroundColor = colorsPalette[randColorName]['100'];
+		let backgroundColor = colorsPalette[randColorName]['50'];
 
 		let foregroundColor = undefined;
 
-		while (foregroundColor === undefined) {
-			let randShades = this.randomShade();
-			if (randShades === '50' || randShades === '100' || randShades === '100') {
-				randShades = '200';
-			}
+		let contrast;
+
+		let randShades = this.randomShade();
+		//@ts-ignore
+		foregroundColor = colorsPalette[randColorName][randShades];
+
+		contrast = colorContrast(foregroundColor, backgroundColor);
+		if (contrast < 4.5) {
 			//@ts-ignore
-			foregroundColor = colorsPalette[randColorName][randShades];
+			foregroundColor = colorsPalette[randColorName]['700'];
 		}
+
+		console.log(colorContrast(foregroundColor, backgroundColor));
 
 		return {
 			foregroundColor,
@@ -139,6 +146,7 @@ export class SvgCoords {
 		}
 	}
 
+	//REMOVE remove this function and this.load into constructor
 	mouseClick() {
 		//TODO: Remove width and height
 		const options = {
@@ -154,7 +162,7 @@ export class SvgCoords {
 			this.svgCount++;
 			this.svgCount = this.svgCount % 15 == 0 ? 1 : this.svgCount % 15;
 
-			console.log(this.svgCount);
+			console.log('✔️', this.svgCount);
 
 			this.load();
 		});
